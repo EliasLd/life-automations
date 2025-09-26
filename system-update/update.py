@@ -27,6 +27,14 @@ def check_aur_updates():
     packages = result.stdout.strip().split("\n") if result.stdout else []
     return packages
 
+def auto_update_pacman():
+    result = run("sudo pacman -Syu --noconfirm")
+    log("Official repo update:\n" + result.stdout + result.stderr)
+
+def auto_update_aur():
+    result = run("yay -Syu --noconfirm")
+    log("AUR update:\n" + result.stdout + result.stderr)
+
 def main():
     pacman_updates = check_pacman_updates()
     aur_updates = check_aur_updates()
@@ -40,6 +48,14 @@ def main():
     update_msg = f"{len(pacman_updates)} official + {len(aur_updates)} AUR updates availble."
     notify("System Update", update_msg)
     log(update_msg)
+
+    if len(pacman_updates) > 0:
+        auto_update_pacman()
+        notify("System Update", "All pacman updates installed automatically!")
+
+    if len(aur_updates) > 0:
+        auto_update_aur()
+        notify("System Update", "All AUR updates installed automatically!")
 
 if __name__ == "__main__":
     main()
