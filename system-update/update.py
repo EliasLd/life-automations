@@ -16,3 +16,13 @@ def notify(title, message):
 def log(message):
     with open(LOG_FILE, "a") as f:
         f.write(f"[{datetime.datetime.now()}] - {message}\n")
+
+def check_pacman_updates():
+    result = run("checkupdates")
+    packages = result.stdout.strip().split("\n") if result.stdout else []
+    return packages
+
+def check_aur_updates():
+    result = run("yay -Qu")
+    packages = result.stdout.strip().split("\n") if result.stdout else []
+    return packages
