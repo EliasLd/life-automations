@@ -28,7 +28,11 @@ def check_aur_updates():
 
 def auto_update_pacman():
     result = run("sudo pacman -Syu --noconfirm")
-    log("Official repo update:\n" + result.stdout + result.stderr)
+    output = (result.stdout or "") + (result.stderr or "")
+    log("Official repo update completed.")
+    log(f"Return code: {result.returncode}")
+    log("Output:\n" + output)
+
     if result.returncode != 0:
         notify("System update error", "Pacman update failed!")
         log("Pacman update failed.")
@@ -38,7 +42,11 @@ def auto_update_pacman():
 
 def auto_update_aur():
     result = run("yay -Syu --noconfirm")
-    log("AUR update:\n" + result.stdout + result.stderr)
+    output = (result.stdout or "") + (result.stderr or "")
+    log("AUR repo update completed.")
+    log(f"Return code: {result.returncode}")
+    log("Output:\n" + output)
+
     if result.returncode != 0:
         notify("System Update Error", "AUR update failed!")
     else:
