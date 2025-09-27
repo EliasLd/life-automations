@@ -2,13 +2,12 @@
 
 import subprocess
 import datetime
-import os
 from pathlib import Path
 
 LOG_FILE = Path.home() / ".local/share/system-update.log"
 
 def run(cmd):
-    return subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+    return subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 def notify(title, message):
     run(f'notify-send "{title}" "{message}"')
@@ -30,10 +29,21 @@ def check_aur_updates():
 def auto_update_pacman():
     result = run("sudo pacman -Syu --noconfirm")
     log("Official repo update:\n" + result.stdout + result.stderr)
+    if result.returncode != 0:
+        notify("System update error", "Pacman update failed!")
+        log("Pacman update failed.")
+    else:
+        notify("System Update", "All pacman updates installed automatically!")
+
 
 def auto_update_aur():
     result = run("yay -Syu --noconfirm")
     log("AUR update:\n" + result.stdout + result.stderr)
+    if result.returncode != 0:
+        notify("System Update Error", "AUR update failed!")
+    else:
+        notify("System Update", "All AUR updates installed automatically!")
+
 
 def main():
     pacman_updates = check_pacman_updates()
@@ -45,17 +55,15 @@ def main():
         log("No updates available.")
         return
 
-    update_msg = f"{len(pacman_updates)} official + {len(aur_updates)} AUR updates availble."
+    update_msg = f"{len(pacman_updates)} official + {len(aur_updates)} AUR update(s) available."
     notify("System Update", update_msg)
     log(update_msg)
 
     if len(pacman_updates) > 0:
         auto_update_pacman()
-        notify("System Update", "All pacman updates installed automatically!")
 
     if len(aur_updates) > 0:
         auto_update_aur()
-        notify("System Update", "All AUR updates installed automatically!")
 
 if __name__ == "__main__":
     main()
