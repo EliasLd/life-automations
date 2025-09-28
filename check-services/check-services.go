@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -86,4 +87,23 @@ func main() {
 			log(fmt.Sprintf("[FAIL] %s (%s): Response does not match expected.", site.Name, site.URL))
 		}
 	}
+
+	// Build notification summary
+	var summary strings.Builder
+	if len(okList) > 0 {
+		summary.WriteString("Working: " + strings.Join(okList, ", ") + "\n")
+	} else {
+		summary.WriteString("Working: None\n")
+	}
+	if len(failList) > 0 {
+		summary.WriteString("Failing: " + strings.Join(failList, ", "))
+	} else {
+		summary.WriteString("Failing: None 🎉")
+	}
+
+	// Log the summary
+	log("Summary: " + strings.ReplaceAll(summary.String(), "\n", " | "))
+
+	// Send desktop notification of the summary
+	exec.Command("notify-send", "Service Status", summary.String()).Run()
 }
