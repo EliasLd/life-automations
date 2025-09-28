@@ -18,7 +18,14 @@ type Site struct {
 }
 
 func main() {
-	configFile := "services.json"
+	var configFile string
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: check-services <config.json>")
+		fmt.Println("	<config.json>: Path to your JSON configuration file.")
+		os.Exit(1)
+	}
+	configFile = os.Args[1]
+
 	logDir := filepath.Join(os.Getenv("HOME"), ".local", "share")
 	logFile := filepath.Join(logDir, "check-services.log")
 
